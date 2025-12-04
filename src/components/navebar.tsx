@@ -3,7 +3,11 @@ import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { useRouter } from 'next/navigation'
 
-const Navbar = () => {
+interface NavbarProps {
+  onMenuClick?: () => void
+}
+
+const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { currentUser, employees, logout } = useApp()
   const router = useRouter()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -24,8 +28,19 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-gradient-to-r from-slate-950 via-slate-900 to-purple-900 border-b border-white/10 px-6 py-4">
-      <div className="flex items-center justify-end">
+    <nav className="bg-gradient-to-r from-slate-950 via-slate-900 to-purple-900 border-b border-white/10 px-4 md:px-6 py-3 md:py-4">
+      <div className="flex items-center justify-between">
+        {/* Mobile menu button */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden text-white/70 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        
+        <div className="flex items-center justify-end flex-1">
         {/* Profile Dropdown */}
         <div className="relative">
           <button
@@ -113,6 +128,7 @@ const Navbar = () => {
               </>
             )}
           </div>
+        </div>
       </div>
     </nav>
   )

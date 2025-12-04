@@ -4,7 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useApp } from '../context/AppContext'
 
-const Sidebar = () => {
+interface SidebarProps {
+  onClose?: () => void
+}
+
+const Sidebar = ({ onClose }: SidebarProps) => {
   const pathname = usePathname()
   const { currentUser } = useApp()
   const isAdmin = pathname?.includes('/addmin') || pathname?.includes('/superadmin')
@@ -101,19 +105,30 @@ const Sidebar = () => {
   const panelTitle = isEmployee ? 'Employee Portal' : 'Admin Panel'
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-slate-950 via-slate-900 to-purple-950 shadow-2xl min-h-screen p-6 flex flex-col">
+    <aside className="w-72 bg-gradient-to-b from-slate-950 via-slate-900 to-purple-950 shadow-2xl min-h-screen p-4 md:p-6 flex flex-col">
       {/* Logo Section */}
-      <div className="mb-8">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-white font-bold text-lg md:text-xl shadow-lg">
+              <svg className="w-5 h-5 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg md:text-xl font-bold text-white">HR Management</h2>
+              <p className="text-xs text-white/70">{panelTitle}</p>
+            </div>
+          </div>
+          {/* Close button for mobile */}
+          <button
+            onClick={onClose}
+            className="lg:hidden text-white/70 hover:text-white p-1"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">HR Management</h2>
-            <p className="text-xs text-white/70">{panelTitle}</p>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -126,7 +141,8 @@ const Sidebar = () => {
               <li key={item.href}>
                 <Link 
                   href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  onClick={onClose}
+                  className={`flex items-center space-x-2 md:space-x-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 text-sm md:text-base ${
                     isActive 
                       ? 'bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white' 
                       : 'text-white/70 hover:bg-white/10 hover:text-white'

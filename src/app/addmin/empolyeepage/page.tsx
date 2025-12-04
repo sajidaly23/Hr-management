@@ -86,14 +86,14 @@ const EmployeesPage = () => {
     <RouteProtection allowedRoles={['admin', 'Admin', 'super_admin', 'SuperAdmin']}>
       <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-4 md:mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-        <h1 className="text-4xl font-bold text-white mb-2">Employees</h1>
-        <p className="text-white/70">Manage and filter employees by department</p>
+        <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">Employees</h1>
+        <p className="text-sm md:text-base text-white/70">Manage and filter employees by department</p>
         </div>
         <button
           onClick={() => router.push('/addmin/empolyeeregisterpage')}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-medium flex items-center space-x-2"
+          className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-medium flex items-center justify-center space-x-2 text-sm md:text-base"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -103,8 +103,8 @@ const EmployeesPage = () => {
       </div>
 
       {/* Search and Filter Section */}
-      <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10 mb-6">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+      <div className="glass-effect rounded-2xl p-4 md:p-6 card-shadow border border-white/10 mb-4 md:mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
           {/* Search Input */}
           <div className="flex-1 max-w-md relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -122,13 +122,13 @@ const EmployeesPage = () => {
           </div>
 
           {/* Department Filter */}
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 md:flex-shrink-0">
             <label className="text-sm font-medium text-white/70 whitespace-nowrap">Filter by Department:</label>
-            <div className="relative">
+            <div className="relative flex-1 md:flex-initial">
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="px-4 py-3 border border-purple-400 rounded-xl bg-transparent text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-200 outline-none appearance-none pr-10 min-w-[200px]"
+                className="w-full md:w-auto px-4 py-3 border border-purple-400 rounded-xl bg-transparent text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-200 outline-none appearance-none pr-10 md:min-w-[200px]"
               >
                 {departments.map((dept) => (
                   <option key={dept} value={dept} className="bg-slate-900">
@@ -176,22 +176,22 @@ const EmployeesPage = () => {
 
       {/* Employees Table */}
       <div className="glass-effect rounded-2xl card-shadow border border-white/10 overflow-hidden">
-        <div className="p-6 border-b border-white/10">
-          <h2 className="text-2xl font-bold text-white">All Employees ({filteredEmployees.length})</h2>
-          <p className="text-sm text-white/70 mt-1">Real-time data from registered employees</p>
+        <div className="p-4 md:p-6 border-b border-white/10">
+          <h2 className="text-xl md:text-2xl font-bold text-white">All Employees ({filteredEmployees.length})</h2>
+          <p className="text-xs md:text-sm text-white/70 mt-1">Real-time data from registered employees</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead>
               <tr className="border-b border-white/10 bg-white/5">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Employee</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Position</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Department</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Phone</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Location</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-white uppercase tracking-wider">Actions</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Employee</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Position</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Department</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Email</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Phone</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Location</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Status</th>
+                <th className="px-3 md:px-6 py-3 md:py-4 text-center text-xs md:text-sm font-semibold text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -203,60 +203,60 @@ const EmployeesPage = () => {
                       index % 2 === 0 ? 'bg-white/2' : 'bg-transparent'
                     }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs md:text-sm flex-shrink-0">
                           {getInitials(employee.name)}
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-white">{employee.name}</div>
+                          <div className="text-xs md:text-sm font-medium text-white">{employee.name}</div>
                           <div className="text-xs text-white/70">ID: {employee.id}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-white/90">{employee.position || 'Employee'}</span>
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <span className="text-xs md:text-sm text-white/90">{employee.position || 'Employee'}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                       {employee.department ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                        <span className="inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-400/30">
                           {employee.department}
                         </span>
                       ) : (
-                        <span className="text-sm text-white/50">N/A</span>
+                        <span className="text-xs md:text-sm text-white/50">N/A</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-1 md:space-x-2">
+                        <svg className="w-3 h-3 md:w-4 md:h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <span className="text-sm text-white/90">{employee.email}</span>
+                        <span className="text-xs md:text-sm text-white/90 truncate max-w-[120px] md:max-w-none">{employee.email}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-1 md:space-x-2">
+                        <svg className="w-3 h-3 md:w-4 md:h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                         </svg>
-                        <span className="text-sm text-white/90">{employee.phone || 'N/A'}</span>
+                        <span className="text-xs md:text-sm text-white/90">{employee.phone || 'N/A'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-1 md:space-x-2">
+                        <svg className="w-3 h-3 md:w-4 md:h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span className="text-sm text-white/90">{getLocation(employee.address)}</span>
+                        <span className="text-xs md:text-sm text-white/90 truncate max-w-[100px] md:max-w-none">{getLocation(employee.address)}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(employee.status)}`}>
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                      <span className={`px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium text-white ${getStatusColor(employee.status)}`}>
                         {employee.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-center">
                       <div className="relative inline-block">
                         <button
                           onClick={() => setShowMenu(showMenu === employee.id ? null : employee.id)}
