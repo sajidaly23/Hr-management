@@ -1,0 +1,5 @@
+{
+  "/addmin/empolyeepage/page": "app/addmin/empolyeepage/page.js",
+  "/addmin/dishboardpage/page": "app/addmin/dishboardpage/page.js",
+  "/auth/loginpage/page": "app/auth/loginpage/page.js"
+}
