@@ -1,35 +1,169 @@
 {
   "pages": {
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+    "/_not-found": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/_not-found-6643053f268bb571.js"
     ],
     "/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/layout.css",
-      "static/chunks/app/layout.js"
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/569-11a93aa6869a868c.js",
+      "static/css/774bebe631d5fa1c.css",
+      "static/chunks/app/layout-158d9e7fe7b37936.js"
     ],
-    "/auth/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/layout.js"
+    "/addmin/attendance/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/attendance/page-f2f656e0ee506e7c.js"
     ],
-    "/auth/loginpage/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/loginpage/page.js"
+    "/addmin/departments/[id]/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/departments/[id]/page-c77f2511739dc512.js"
     ],
     "/addmin/dishboardpage/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/addmin/dishboardpage/page.js"
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/dishboardpage/page-c1135e808ceea875.js"
+    ],
+    "/addmin/departments/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/departments/page-948da625b47b4af4.js"
+    ],
+    "/addmin/empolyeeregisterpage/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/empolyeeregisterpage/page-06880e0b898db65e.js"
     ],
     "/addmin/empolyeepage/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/addmin/empolyeepage/page.js"
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/empolyeepage/page-bda3778438ad7b65.js"
+    ],
+    "/addmin/leavemanagement/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/leavemanagement/page-3d4dfab8bf8e8fbd.js"
+    ],
+    "/addmin/profile/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/profile/page-406bf758e9e6c002.js"
+    ],
+    "/addmin/taskmanagement/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/taskmanagement/page-88eab246b14a3d33.js"
+    ],
+    "/dashboard/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/dashboard/page-040ec391652c9d87.js"
+    ],
+    "/empolyee/attendance/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/empolyee/attendance/page-8ab88940ba1e3d02.js"
+    ],
+    "/empolyee/dishboard/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/empolyee/dishboard/page-555820c8bb90169b.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/page-193b8d00a313edaf.js"
+    ],
+    "/empolyee/profilepage/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/empolyee/profilepage/page-b71402c7be494570.js"
+    ],
+    "/empolyee/settings/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/empolyee/settings/page-3fb631a7de16c9be.js"
+    ],
+    "/empolyee/taskpage/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/empolyee/taskpage/page-8640c6144fa779a7.js"
+    ],
+    "/superadmin/dashboard/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/superadmin/dashboard/page-2aa7880c90788d49.js"
+    ],
+    "/addmin/settings/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/addmin/settings/page-1b7b1cf127c1f1ea.js"
+    ],
+    "/auth/layout": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/app/auth/layout-2149c0e266893d59.js"
+    ],
+    "/auth/loginpage/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/569-11a93aa6869a868c.js",
+      "static/chunks/app/auth/loginpage/page-3749fd3e69276892.js"
+    ],
+    "/auth/registerpage/page": [
+      "static/chunks/webpack-e088472d2cc71f49.js",
+      "static/chunks/fd9d1056-6fd66beb19f572f2.js",
+      "static/chunks/472-d2683a4ee5bb4083.js",
+      "static/chunks/main-app-9d98c8abd58c299d.js",
+      "static/chunks/569-11a93aa6869a868c.js",
+      "static/chunks/app/auth/registerpage/page-a36096edd43c1470.js"
     ]
   }
 }

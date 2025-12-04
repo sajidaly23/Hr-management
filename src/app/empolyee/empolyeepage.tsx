@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { useApp } from '../../../src/context/AppContext'
+import { useApp } from '../../context/AppContext'
 
 const EmployeesList = () => {
   const { currentUser, employees } = useApp()
@@ -9,13 +9,13 @@ const EmployeesList = () => {
   
   // For employees, redirect to their profile page instead
   React.useEffect(() => {
-    if (currentUser && (currentUser.role === 'Employee' || currentUser.role === 'employee')) {
+    if (currentUser && currentUser.role === 'Employee') {
       router.push('/empolyee/profilepage')
     }
   }, [currentUser, router])
 
   // Only admins should see this page
-  if (currentUser && (currentUser.role === 'Employee' || currentUser.role === 'employee')) {
+  if (currentUser && currentUser.role === 'Employee') {
     return null // Will redirect
   }
 

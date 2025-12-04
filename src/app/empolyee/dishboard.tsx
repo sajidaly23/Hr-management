@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useApp } from '../../../src/context/AppContext'
-import RouteProtection from '../../../src/components/RouteProtection'
+import { useApp } from '../../context/AppContext'
+import RouteProtection from '../../components/RouteProtection'
 
 interface AttendanceRecord {
   id: string

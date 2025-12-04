@@ -15,9 +15,9 @@ const DashboardPage = () => {
 
     // Redirect based on role
     const role = currentUser?.role
-    if (role === 'SuperAdmin' || role === 'super_admin') {
+    if (role === 'SuperAdmin') {
       router.push('/superadmin/dashboard')
-    } else if (role === 'Admin' || role === 'admin') {
+    } else if (role === 'Admin') {
       router.push('/addmin/dishboardpage')
     } else {
       router.push('/empolyee/dishboard')

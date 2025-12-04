@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useApp } from '../../../../context/AppContext'
+import { useApp } from '../../../context/AppContext'
 
 const SuperAdminDashboard = () => {
   const { employees, tasks } = useApp()

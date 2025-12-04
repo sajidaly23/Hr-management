@@ -23,12 +23,15 @@ const RouteProtection: React.FC<RouteProtectionProps> = ({ children, allowedRole
       const userRole = currentUser.role
       const normalizedRole = userRole === 'SuperAdmin' ? 'super_admin' : 
                             userRole === 'Admin' ? 'admin' : 
-                            userRole === 'Employee' ? 'employee' : userRole.toLowerCase()
+                            'employee'
       
       const normalizedAllowedRoles = allowedRoles.map(role => 
         role === 'SuperAdmin' ? 'super_admin' : 
         role === 'Admin' ? 'admin' : 
-        role === 'Employee' ? 'employee' : role.toLowerCase()
+        role === 'Employee' ? 'employee' : 
+        role === 'super_admin' ? 'super_admin' :
+        role === 'admin' ? 'admin' :
+        role === 'employee' ? 'employee' : role
       )
 
       if (!normalizedAllowedRoles.includes(normalizedRole)) {
@@ -53,12 +56,15 @@ const RouteProtection: React.FC<RouteProtectionProps> = ({ children, allowedRole
   const userRole = currentUser.role
   const normalizedRole = userRole === 'SuperAdmin' ? 'super_admin' : 
                         userRole === 'Admin' ? 'admin' : 
-                        userRole === 'Employee' ? 'employee' : userRole.toLowerCase()
+                        'employee'
   
   const normalizedAllowedRoles = allowedRoles.map(role => 
     role === 'SuperAdmin' ? 'super_admin' : 
     role === 'Admin' ? 'admin' : 
-    role === 'Employee' ? 'employee' : role.toLowerCase()
+    role === 'Employee' ? 'employee' : 
+    role === 'super_admin' ? 'super_admin' :
+    role === 'admin' ? 'admin' :
+    role === 'employee' ? 'employee' : role
   )
 
   if (!normalizedAllowedRoles.includes(normalizedRole)) {

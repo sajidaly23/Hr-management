@@ -1,9 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import TaskCard from '../../../../src/components/taskcard'
-import { useApp } from '../../../../src/context/AppContext'
-import type { Task } from '../../../../src/context/AppContext'
-import RouteProtection from '../../../../src/components/RouteProtection'
+import TaskCard from '../../../components/taskcard'
+import { useApp } from '../../../context/AppContext'
+import type { Task } from '../../../context/AppContext'
+import RouteProtection from '../../../components/RouteProtection'
 
 const MyTasks = () => {
   const { tasks, updateTask, currentUser } = useApp()

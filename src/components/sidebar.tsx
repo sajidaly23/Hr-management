@@ -8,7 +8,7 @@ const Sidebar = () => {
   const pathname = usePathname()
   const { currentUser } = useApp()
   const isAdmin = pathname?.includes('/addmin') || pathname?.includes('/superadmin')
-  const isEmployee = currentUser && (currentUser.role === 'Employee' || currentUser.role === 'employee')
+  const isEmployee = currentUser && currentUser.role === 'Employee'
 
   const adminMenuItems = [
     { 
