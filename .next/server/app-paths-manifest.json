@@ -1,25 +1,6 @@
 {
-  "/_not-found": "app/_not-found.js",
-  "/addmin/attendance/page": "app/addmin/attendance/page.js",
-  "/addmin/departments/[id]/page": "app/addmin/departments/[id]/page.js",
-  "/addmin/dishboardpage/page": "app/addmin/dishboardpage/page.js",
-  "/addmin/departments/page": "app/addmin/departments/page.js",
-  "/addmin/empolyeeregisterpage/page": "app/addmin/empolyeeregisterpage/page.js",
-  "/addmin/empolyeepage/page": "app/addmin/empolyeepage/page.js",
-  "/addmin/leavemanagement/page": "app/addmin/leavemanagement/page.js",
-  "/addmin/profile/page": "app/addmin/profile/page.js",
-  "/addmin/taskmanagement/page": "app/addmin/taskmanagement/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/empolyee/attendance/page": "app/empolyee/attendance/page.js",
-  "/empolyee/dishboard/page": "app/empolyee/dishboard/page.js",
   "/page": "app/page.js",
-  "/empolyee/profilepage/page": "app/empolyee/profilepage/page.js",
-  "/empolyee/settings/page": "app/empolyee/settings/page.js",
-  "/empolyee/taskpage/page": "app/empolyee/taskpage/page.js",
-  "/superadmin/dashboard/page": "app/superadmin/dashboard/page.js",
-  "/addmin/settings/page": "app/addmin/settings/page.js",
   "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
-  "/auth/loginpage/page": "app/auth/loginpage/page.js",
-  "/auth/registerpage/page": "app/auth/registerpage/page.js"
+  "/addmin/dishboardpage/page": "app/addmin/dishboardpage/page.js",
+  "/auth/loginpage/page": "app/auth/loginpage/page.js"
 }
