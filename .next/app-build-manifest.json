@@ -26,10 +26,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/addmin/dishboardpage/page.js"
     ],
-    "/not-found": [
+    "/addmin/empolyeepage/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/not-found.js"
+      "static/chunks/app/addmin/empolyeepage/page.js"
+    ],
+    "/addmin/taskmanagement/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/taskmanagement/page.js"
+    ],
+    "/addmin/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/attendance/page.js"
+    ],
+    "/addmin/departments/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/departments/page.js"
+    ],
+    "/addmin/empolyeeregisterpage/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/empolyeeregisterpage/page.js"
     ]
   }
 }

@@ -17,12 +17,15 @@ export interface Employee {
 export interface Task {
   id: string
   title: string
-  status: 'pending' | 'completed'
+  status: 'pending' | 'in_progress' | 'completed'
   priority: 'High' | 'Medium' | 'Low'
   dueDate: string
   assignedTo?: string
   description?: string
   project?: string
+  createdBy?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface AppContextType {

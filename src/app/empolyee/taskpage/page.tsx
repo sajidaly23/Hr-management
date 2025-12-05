@@ -4,28 +4,40 @@ import TaskCard from '../../../components/taskcard'
 import { useApp } from '../../../context/AppContext'
 import type { Task } from '../../../context/AppContext'
 import RouteProtection from '../../../components/RouteProtection'
+import StatusBadge from '../../../components/StatusBadge'
+import { getTasks, updateTaskStatus } from '../../../utils/taskApi'
 
 const MyTasks = () => {
   const { tasks, updateTask, currentUser } = useApp()
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all')
+  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all')
   const [projectFilter, setProjectFilter] = useState<string>('all')
   const [localTasks, setLocalTasks] = useState<Task[]>([])
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
-  // Load tasks from localStorage in real-time
+  // Load tasks from API in real-time
   useEffect(() => {
-    const loadTasks = () => {
-      const savedTasks = localStorage.getItem('hr_tasks')
-      if (savedTasks) {
-        try {
-          const parsedTasks: Task[] = JSON.parse(savedTasks)
-          setLocalTasks(parsedTasks)
-          setLastUpdate(new Date())
-        } catch (e) {
-          console.error('Error parsing tasks:', e)
-        }
-      } else if (tasks.length > 0) {
-        // Fallback to context tasks if localStorage is empty
+    const loadTasks = async () => {
+      if (!currentUser?.email) return
+      
+      try {
+        const fetchedTasks = await getTasks(currentUser.email)
+        setLocalTasks(fetchedTasks)
+        setLastUpdate(new Date())
+        
+        // Also update context for backward compatibility
+        fetchedTasks.forEach((task: Task) => {
+          const existingTask = tasks.find(t => t.id === task.id)
+          if (!existingTask || JSON.stringify(existingTask) !== JSON.stringify(task)) {
+            if (existingTask) {
+              updateTask(task.id, task)
+            } else {
+              // Task doesn't exist in context, but we'll let the API be the source of truth
+            }
+          }
+        })
+      } catch (error) {
+        console.error('Error loading tasks:', error)
+        // Fallback to context tasks
         setLocalTasks(tasks)
       }
     }
@@ -33,11 +45,11 @@ const MyTasks = () => {
     // Load immediately
     loadTasks()
     
-    // Refresh every 2 seconds for real-time updates
-    const interval = setInterval(loadTasks, 2000)
+    // Refresh every 3 seconds for real-time updates
+    const interval = setInterval(loadTasks, 3000)
     
     return () => clearInterval(interval)
-  }, [tasks])
+  }, [tasks, currentUser, updateTask])
 
   // Use localTasks if available, otherwise fall back to context tasks
   const allTasks = localTasks.length > 0 ? localTasks : tasks
@@ -47,26 +59,45 @@ const MyTasks = () => {
     ? allTasks.filter(t => t.assignedTo === currentUser.email)
     : []
 
-  // Sort tasks: pending first, then by due date
+  // Sort tasks: pending first, then in_progress, then completed, then by due date
   const sortedMyTasks = [...myTasks].sort((a, b) => {
-    if (a.status === 'pending' && b.status === 'completed') return -1
-    if (a.status === 'completed' && b.status === 'pending') return 1
+    const statusOrder = { 'pending': 0, 'in_progress': 1, 'completed': 2 }
+    const aOrder = statusOrder[a.status] ?? 3
+    const bOrder = statusOrder[b.status] ?? 3
+    
+    if (aOrder !== bOrder) return aOrder - bOrder
+    
     if (a.dueDate && b.dueDate) {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     }
     return 0
   })
 
-  const markCompleted = (taskId: string) => {
-    // Update in context
-    updateTask(taskId, { status: 'completed' })
+  const handleStatusUpdate = async (taskId: string, newStatus: 'pending' | 'in_progress' | 'completed') => {
+    if (!currentUser?.email) return
     
-    // Also update in localStorage for real-time sync
-    const updatedTasks = allTasks.map(task => 
-      task.id === taskId ? { ...task, status: 'completed' as const } : task
-    )
-    localStorage.setItem('hr_tasks', JSON.stringify(updatedTasks))
-    setLocalTasks(updatedTasks)
+    try {
+      // Update via API
+      const updatedTask = await updateTaskStatus({
+        task_id: taskId,
+        employee_id: currentUser.email,
+        new_status: newStatus
+      })
+      
+      // Update in context for immediate UI update
+      updateTask(taskId, { status: newStatus })
+      
+      // Update local tasks
+      const updatedTasks = allTasks.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+      setLocalTasks(updatedTasks)
+      
+      // Also update localStorage for backward compatibility
+      localStorage.setItem('hr_tasks', JSON.stringify(updatedTasks))
+    } catch (error: any) {
+      alert(`Error updating task status: ${error.message || 'Failed to update status'}`)
+    }
   }
 
   // Get all unique projects from tasks
@@ -76,6 +107,15 @@ const MyTasks = () => {
   const statusFilteredTasks = filter === 'all' 
     ? sortedMyTasks 
     : sortedMyTasks.filter(t => t.status === filter)
+  
+  // Calculate stats including in_progress
+  const stats = {
+    total: sortedMyTasks.length,
+    completed: sortedMyTasks.filter(t => t.status === 'completed').length,
+    pending: sortedMyTasks.filter(t => t.status === 'pending').length,
+    in_progress: sortedMyTasks.filter(t => t.status === 'in_progress').length,
+    projects: allProjects.length
+  }
   
   // Filter tasks by project
   const filteredTasks = projectFilter === 'all'
@@ -106,12 +146,6 @@ const MyTasks = () => {
     }
   })
 
-  const stats = {
-    total: sortedMyTasks.length,
-    completed: sortedMyTasks.filter(t => t.status === 'completed').length,
-    pending: sortedMyTasks.filter(t => t.status === 'pending').length,
-    projects: allProjects.length
-  }
 
   return (
     <RouteProtection allowedRoles={['employee', 'Employee']}>
@@ -147,11 +181,11 @@ const MyTasks = () => {
         <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/70 mb-1">Completed</p>
-              <p className="text-3xl font-bold text-green-400">{stats.completed}</p>
+              <p className="text-sm text-white/70 mb-1">Pending</p>
+              <p className="text-3xl font-bold text-yellow-400">{stats.pending}</p>
             </div>
-            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">✅</span>
+            <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">⏱</span>
             </div>
           </div>
         </div>
@@ -159,23 +193,23 @@ const MyTasks = () => {
         <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/70 mb-1">Pending</p>
-              <p className="text-3xl font-bold text-orange-400">{stats.pending}</p>
+              <p className="text-sm text-white/70 mb-1">In Progress</p>
+              <p className="text-3xl font-bold text-blue-400">{stats.in_progress}</p>
             </div>
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">⏱</span>
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">🔄</span>
             </div>
           </div>
         </div>
-
+        
         <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/70 mb-1">Projects</p>
-              <p className="text-3xl font-bold text-blue-400">{stats.projects}</p>
+              <p className="text-sm text-white/70 mb-1">Completed</p>
+              <p className="text-3xl font-bold text-green-400">{stats.completed}</p>
             </div>
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📁</span>
+            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">✅</span>
             </div>
           </div>
         </div>
@@ -247,6 +281,16 @@ const MyTasks = () => {
             Pending
           </button>
           <button
+            onClick={() => setFilter('in_progress')}
+            className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
+              filter === 'in_progress'
+                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg'
+                : 'glass-effect text-white border border-white/10 hover:bg-white/10'
+            }`}
+          >
+            In Progress
+          </button>
+          <button
             onClick={() => setFilter('completed')}
             className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
               filter === 'completed'
@@ -314,11 +358,17 @@ const MyTasks = () => {
                         <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                           t.status === 'completed' 
                             ? 'bg-green-500/20 text-green-400' 
-                            : 'bg-orange-500/20 text-orange-400'
+                            : t.status === 'in_progress'
+                            ? 'bg-blue-500/20 text-blue-400'
+                            : 'bg-yellow-500/20 text-yellow-400'
                         }`}>
                           {t.status === 'completed' ? (
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : t.status === 'in_progress' ? (
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                           ) : (
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,16 +379,7 @@ const MyTasks = () => {
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-white">{t.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
-                            {t.status === 'pending' && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                                Pending
-                              </span>
-                            )}
-                            {t.status === 'completed' && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30">
-                                Completed
-                              </span>
-                            )}
+                            <StatusBadge status={t.status} size="sm" />
                           </div>
                         </div>
                       </div>
@@ -361,17 +402,17 @@ const MyTasks = () => {
                         </span>
                       </div>
                     </div>
-                    {t.status === 'pending' && (
-                      <button
-                        onClick={() => markCompleted(t.id)}
-                        className="ml-4 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/20 transition-all duration-200 font-medium flex items-center space-x-2"
+                    <div className="ml-4 flex items-center space-x-2">
+                      <select
+                        value={t.status}
+                        onChange={(e) => handleStatusUpdate(t.id, e.target.value as 'pending' | 'in_progress' | 'completed')}
+                        className="px-4 py-2.5 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-200 outline-none appearance-none cursor-pointer"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>Complete</span>
-                      </button>
-                    )}
+                        <option value="pending" className="bg-slate-800">Pending</option>
+                        <option value="in_progress" className="bg-slate-800">In Progress</option>
+                        <option value="completed" className="bg-slate-800">Completed</option>
+                      </select>
+                    </div>
                   </div>
                 ))}
               </div>

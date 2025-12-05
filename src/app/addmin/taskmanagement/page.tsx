@@ -1,14 +1,18 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useApp } from '../../../context/AppContext'
 import type { Task } from '../../../context/AppContext'
 import ActionPopup from '../../../components/ActionPopup'
+import StatusBadge from '../../../components/StatusBadge'
+import { getTasks, createTask, updateTask as updateTaskApi, deleteTask as deleteTaskApi } from '../../../utils/taskApi'
 
 const TaskManagementPage = () => {
-  const { tasks, employees, addTask, updateTask, deleteTask } = useApp()
+  const { tasks, employees, addTask, updateTask, deleteTask, currentUser } = useApp()
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all')
+  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all')
+  const [localTasks, setLocalTasks] = useState<Task[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedDepartment, setSelectedDepartment] = useState<string>('')
   const [showMenu, setShowMenu] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -53,39 +57,61 @@ const TaskManagementPage = () => {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     
-    if (editingTask) {
-      updateTask(editingTask.id, {
-        title: formData.title,
-        description: formData.description,
-        priority: formData.priority,
-        dueDate: formData.dueDate,
-        assignedTo: formData.assignedTo
+    try {
+      if (editingTask) {
+        // Update existing task via API
+        await updateTaskApi(editingTask.id, {
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          dueDate: formData.dueDate,
+          assignedTo: formData.assignedTo
+        })
+        // Also update in context for immediate UI update
+        updateTask(editingTask.id, {
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          dueDate: formData.dueDate,
+          assignedTo: formData.assignedTo
+        })
+      } else {
+        // Create new task via API (always starts as 'pending')
+        const newTask = await createTask({
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          dueDate: formData.dueDate,
+          assignedTo: formData.assignedTo,
+          createdBy: currentUser?.email
+        })
+        // Also add to context for immediate UI update
+        addTask({
+          ...newTask,
+          status: 'pending'
+        })
+      }
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'Medium',
+        dueDate: '',
+        assignedTo: ''
       })
-    } else {
-      addTask({
-        title: formData.title,
-        description: formData.description,
-        priority: formData.priority,
-        dueDate: formData.dueDate,
-        assignedTo: formData.assignedTo,
-        status: 'pending'
-      })
+      setSelectedDepartment('')
+      setShowForm(false)
+      setEditingTask(null)
+    } catch (error: any) {
+      alert(`Error: ${error.message || 'Failed to save task'}`)
+    } finally {
+      setIsLoading(false)
     }
-    
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      priority: 'Medium',
-      dueDate: '',
-      assignedTo: ''
-    })
-    setSelectedDepartment('')
-    setShowForm(false)
-    setEditingTask(null)
   }
 
   const handleEdit = (task: Task) => {
@@ -107,25 +133,70 @@ const TaskManagementPage = () => {
     setShowForm(true)
   }
 
-  const handleDelete = (taskId: string) => {
+  const handleDelete = async (taskId: string) => {
     if (confirm('Are you sure you want to delete this task?')) {
-      deleteTask(taskId)
+      try {
+        await deleteTaskApi(taskId)
+        // Also delete from context
+        deleteTask(taskId)
+      } catch (error: any) {
+        alert(`Error: ${error.message || 'Failed to delete task'}`)
+      }
     }
   }
 
+  // Real-time polling for tasks
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const fetchedTasks = await getTasks()
+        setLocalTasks(fetchedTasks)
+        // Also update context for backward compatibility
+        fetchedTasks.forEach((task: Task) => {
+          const existingTask = tasks.find(t => t.id === task.id)
+          if (!existingTask || JSON.stringify(existingTask) !== JSON.stringify(task)) {
+            // Task changed, update context
+            if (existingTask) {
+              updateTask(task.id, task)
+            } else {
+              addTask(task)
+            }
+          }
+        })
+      } catch (error) {
+        console.error('Error loading tasks:', error)
+        // Fallback to context tasks
+        setLocalTasks(tasks)
+      }
+    }
+
+    // Load immediately
+    loadTasks()
+    
+    // Poll every 3 seconds for real-time updates
+    const interval = setInterval(loadTasks, 3000)
+    
+    return () => clearInterval(interval)
+  }, [tasks, addTask, updateTask])
+
+  // Use localTasks if available, otherwise fall back to context tasks
+  const allTasks = localTasks.length > 0 ? localTasks : tasks
+
   const filteredTasks = filter === 'all' 
-    ? tasks 
-    : tasks.filter(t => t.status === filter)
+    ? allTasks 
+    : allTasks.filter(t => t.status === filter)
 
   const getAssignedEmployeeName = (email: string) => {
     const employee = employees.find(e => e.email === email)
     return employee ? employee.name : email
   }
 
+  // Calculate stats dynamically
   const stats = {
-    total: tasks.length,
-    pending: tasks.filter(t => t.status === 'pending').length,
-    completed: tasks.filter(t => t.status === 'completed').length
+    total: allTasks.length,
+    pending: allTasks.filter(t => t.status === 'pending').length,
+    in_progress: allTasks.filter(t => t.status === 'in_progress').length,
+    completed: allTasks.filter(t => t.status === 'completed').length
   }
 
   return (
@@ -159,7 +230,7 @@ const TaskManagementPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
           <div className="flex items-center justify-between">
             <div>
@@ -176,10 +247,22 @@ const TaskManagementPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/70 mb-1">Pending</p>
-              <p className="text-3xl font-bold text-orange-400">{stats.pending}</p>
+              <p className="text-3xl font-bold text-yellow-400">{stats.pending}</p>
             </div>
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center">
               <span className="text-2xl">⏱</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-white/70 mb-1">In Progress</p>
+              <p className="text-3xl font-bold text-blue-400">{stats.in_progress}</p>
+            </div>
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">🔄</span>
             </div>
           </div>
         </div>
@@ -307,9 +390,10 @@ const TaskManagementPage = () => {
             <div className="flex items-center space-x-4 pt-4">
               <button
                 type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
+                disabled={isLoading}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {editingTask ? 'Update Task' : 'Assign Task'}
+                {isLoading ? 'Saving...' : editingTask ? 'Update Task' : 'Assign Task'}
               </button>
               <button
                 type="button"
@@ -357,6 +441,16 @@ const TaskManagementPage = () => {
           Pending
         </button>
         <button
+          onClick={() => setFilter('in_progress')}
+          className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
+            filter === 'in_progress'
+              ? 'bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white'
+              : 'glass-effect text-white border border-white/10 hover:bg-white/10'
+          }`}
+        >
+          In Progress
+        </button>
+        <button
           onClick={() => setFilter('completed')}
           className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
             filter === 'completed'
@@ -370,9 +464,18 @@ const TaskManagementPage = () => {
 
       {/* Tasks List */}
       <div className="glass-effect rounded-2xl p-6 card-shadow border border-white/10">
-        <h2 className="text-2xl font-bold text-white mb-6">
-          {filter === 'all' ? 'All Tasks' : filter === 'pending' ? 'Pending Tasks' : 'Completed Tasks'}
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">
+            {filter === 'all' ? 'All Tasks' : 
+             filter === 'pending' ? 'Pending Tasks' : 
+             filter === 'in_progress' ? 'In Progress Tasks' : 
+             'Completed Tasks'}
+          </h2>
+          <div className="flex items-center space-x-2 text-sm text-white/50">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span>Live Updates</span>
+          </div>
+        </div>
         <div className="space-y-4">
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
@@ -386,10 +489,14 @@ const TaskManagementPage = () => {
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                         task.status === 'completed' 
                           ? 'bg-gradient-to-br from-green-500 to-green-600' 
-                          : 'bg-gradient-to-br from-orange-500 to-orange-600'
+                          : task.status === 'in_progress'
+                          ? 'bg-gradient-to-br from-blue-500 to-blue-600'
+                          : 'bg-gradient-to-br from-yellow-500 to-yellow-600'
                       }`}>
                         {task.status === 'completed' ? (
                           <span className="text-white text-lg">✓</span>
+                        ) : task.status === 'in_progress' ? (
+                          <span className="text-white text-lg">🔄</span>
                         ) : (
                           <span className="text-white text-lg">⏱</span>
                         )}
@@ -416,13 +523,7 @@ const TaskManagementPage = () => {
                         <span>📅</span>
                         <span>Due: {task.dueDate}</span>
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        task.status === 'completed' 
-                          ? 'bg-green-500/20 text-green-300' 
-                          : 'bg-orange-500/20 text-orange-300'
-                      }`}>
-                        {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                      </span>
+                      <StatusBadge status={task.status} size="sm" />
                     </div>
                   </div>
                   <div className="relative inline-block ml-4">

@@ -1,7 +1,7 @@
 {
-  "/not-found": "app/not-found.js",
+  "/addmin/empolyeepage/page": "app/addmin/empolyeepage/page.js",
   "/addmin/dishboardpage/page": "app/addmin/dishboardpage/page.js",
-  "/page": "app/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/addmin/taskmanagement/page": "app/addmin/taskmanagement/page.js",
+  "/addmin/departments/page": "app/addmin/departments/page.js",
   "/auth/loginpage/page": "app/auth/loginpage/page.js"
 }

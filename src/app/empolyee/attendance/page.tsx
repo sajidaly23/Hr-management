@@ -52,20 +52,41 @@ const EmployeeAttendancePage = () => {
 
   // Save attendance to localStorage
   useEffect(() => {
-    if (attendanceRecords.length > 0) {
-      localStorage.setItem('hr_attendance', JSON.stringify(attendanceRecords))
-    }
+    localStorage.setItem('hr_attendance', JSON.stringify(attendanceRecords))
   }, [attendanceRecords])
 
   const handleCheckIn = () => {
-    if (!currentUser) return
+    if (!currentUser) {
+      alert('Please log in to check in!')
+      return
+    }
 
     const now = new Date()
     const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
     const dateString = now.toISOString().split('T')[0]
     
-    const employee = employees.find(e => e.email === currentUser.email)
-    if (!employee) return
+    // Try to find employee in employees array
+    let employee = employees.find(e => e.email === currentUser.email)
+    let employeeId = employee?.id || Date.now().toString()
+    let employeeName = employee?.name || currentUser.email.split('@')[0] // Use email username as fallback
+    
+    // If employee not found, try to get name from localStorage user data
+    if (!employee) {
+      try {
+        const savedUser = localStorage.getItem('user')
+        if (savedUser) {
+          const userData = JSON.parse(savedUser)
+          if (userData.name) {
+            employeeName = userData.name
+          }
+          if (userData.id) {
+            employeeId = userData.id
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing user data:', e)
+      }
+    }
 
     // Check if already checked in today
     const existingRecord = attendanceRecords.find(
@@ -85,9 +106,9 @@ const EmployeeAttendancePage = () => {
 
     const newRecord: AttendanceRecord = {
       id: existingRecord?.id || Date.now().toString(),
-      employeeId: employee.id,
+      employeeId: employeeId,
       employeeEmail: currentUser.email,
-      employeeName: employee.name,
+      employeeName: employeeName,
       date: dateString,
       checkIn: timeString,
       checkOut: existingRecord?.checkOut || null,
@@ -108,7 +129,10 @@ const EmployeeAttendancePage = () => {
   }
 
   const handleCheckOut = () => {
-    if (!currentUser) return
+    if (!currentUser) {
+      alert('Please log in to check out!')
+      return
+    }
 
     const now = new Date()
     const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
@@ -128,24 +152,66 @@ const EmployeeAttendancePage = () => {
       return
     }
 
-    // Calculate working hours
-    const checkInTime = new Date(`${dateString} ${existingRecord.checkIn}`)
-    const checkOutTime = now
-    const diffMs = checkOutTime.getTime() - checkInTime.getTime()
-    const diffHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10
+    // Calculate working hours - parse the check-in time properly
+    // The checkIn time is in format like "09:30 AM" or "09:30:00 AM"
+    try {
+      const checkInTimeStr = existingRecord.checkIn.trim()
+      const timeMatch = checkInTimeStr.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)/i)
+      
+      if (!timeMatch) {
+        throw new Error('Invalid time format')
+      }
+      
+      let checkInHours = parseInt(timeMatch[1], 10)
+      const checkInMinutes = parseInt(timeMatch[2], 10)
+      const period = timeMatch[3].toUpperCase()
+      
+      // Convert to 24-hour format
+      if (period === 'PM' && checkInHours !== 12) {
+        checkInHours += 12
+      } else if (period === 'AM' && checkInHours === 12) {
+        checkInHours = 0
+      }
+      
+      const checkInTime = new Date(`${dateString}T${String(checkInHours).padStart(2, '0')}:${String(checkInMinutes).padStart(2, '0')}:00`)
+      const checkOutTime = now
+      const diffMs = checkOutTime.getTime() - checkInTime.getTime()
+      
+      if (diffMs < 0) {
+        alert('Error: Check-out time cannot be before check-in time!')
+        return
+      }
+      
+      const diffHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10
 
-    const updatedRecord: AttendanceRecord = {
-      ...existingRecord,
-      checkOut: timeString,
-      workingHours: diffHours
+      const updatedRecord: AttendanceRecord = {
+        ...existingRecord,
+        checkOut: timeString,
+        workingHours: diffHours
+      }
+
+      setAttendanceRecords(attendanceRecords.map(record => 
+        record.id === existingRecord.id ? updatedRecord : record
+      ))
+
+      setTodayAttendance({ checkIn: todayAttendance.checkIn, checkOut: timeString })
+      alert(`Checked out at ${timeString}. Working hours: ${diffHours} hours`)
+    } catch (error) {
+      console.error('Error calculating working hours:', error)
+      // Fallback: just update checkout without calculating hours
+      const updatedRecord: AttendanceRecord = {
+        ...existingRecord,
+        checkOut: timeString,
+        workingHours: null
+      }
+
+      setAttendanceRecords(attendanceRecords.map(record => 
+        record.id === existingRecord.id ? updatedRecord : record
+      ))
+
+      setTodayAttendance({ checkIn: todayAttendance.checkIn, checkOut: timeString })
+      alert(`Checked out at ${timeString}`)
     }
-
-    setAttendanceRecords(attendanceRecords.map(record => 
-      record.id === existingRecord.id ? updatedRecord : record
-    ))
-
-    setTodayAttendance({ checkIn: todayAttendance.checkIn, checkOut: timeString })
-    alert(`Checked out at ${timeString}. Working hours: ${diffHours} hours`)
   }
 
   // Get current user's attendance records for selected month
