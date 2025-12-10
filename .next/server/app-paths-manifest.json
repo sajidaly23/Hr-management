@@ -1,7 +1,9 @@
 {
-  "/addmin/empolyeepage/page": "app/addmin/empolyeepage/page.js",
   "/addmin/dishboardpage/page": "app/addmin/dishboardpage/page.js",
-  "/addmin/taskmanagement/page": "app/addmin/taskmanagement/page.js",
+  "/addmin/empolyeepage/page": "app/addmin/empolyeepage/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/empolyee/dishboard/page": "app/empolyee/dishboard/page.js",
+  "/empolyee/attendance/page": "app/empolyee/attendance/page.js",
   "/addmin/departments/page": "app/addmin/departments/page.js",
   "/auth/loginpage/page": "app/auth/loginpage/page.js"
 }

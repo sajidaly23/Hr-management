@@ -18,41 +18,88 @@ interface AttendanceRecord {
 const EmployeeAttendancePage = () => {
   const { currentUser, employees } = useApp()
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
-  const [todayAttendance, setTodayAttendance] = useState<{ checkIn: string | null; checkOut: string | null }>({
-    checkIn: null,
-    checkOut: null
-  })
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toISOString().slice(0, 7))
+
+  // Derived state for today's attendance
+  const todayAttendance = React.useMemo(() => {
+    if (!currentUser || !attendanceRecords.length) return { checkIn: null, checkOut: null }
+    
+    const today = new Date().toISOString().split('T')[0]
+    const todayRecord = attendanceRecords.find(
+      record => record.employeeEmail === currentUser.email && record.date === today
+    )
+    
+    return {
+      checkIn: todayRecord?.checkIn || null,
+      checkOut: todayRecord?.checkOut || null
+    }
+  }, [currentUser, attendanceRecords])
 
   // Load attendance from localStorage
   useEffect(() => {
-    const savedAttendance = localStorage.getItem('hr_attendance')
-    if (savedAttendance) {
-      setAttendanceRecords(JSON.parse(savedAttendance))
+    const loadAttendance = () => {
+      try {
+        const savedAttendance = localStorage.getItem('hr_attendance')
+        if (savedAttendance) {
+          const parsed: AttendanceRecord[] = JSON.parse(savedAttendance)
+          setAttendanceRecords(parsed)
+        }
+      } catch (error) {
+        console.error('Error loading attendance from localStorage:', error)
+      }
+    }
+    
+    loadAttendance()
+  }, []) 
+
+  // Reload attendance when page becomes visible or window regains focus (user navigates back)
+  useEffect(() => {
+    const reloadAttendance = () => {
+      try {
+        const savedAttendance = localStorage.getItem('hr_attendance')
+        if (savedAttendance) {
+          const parsed: AttendanceRecord[] = JSON.parse(savedAttendance)
+          // Only update if different to avoid unnecessary re-renders
+          setAttendanceRecords(prev => {
+            if (JSON.stringify(prev) !== JSON.stringify(parsed)) {
+              return parsed
+            }
+            return prev
+          })
+        }
+      } catch (error) {
+        console.error('Error reloading attendance:', error)
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        reloadAttendance()
+      }
+    }
+
+    const handleFocus = () => {
+      reloadAttendance()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
     }
   }, [])
 
-  // Get today's attendance for current user
+  // Save attendance to localStorage whenever records change (backup save)
   useEffect(() => {
-    if (currentUser) {
-      const today = new Date().toISOString().split('T')[0]
-      const todayRecord = attendanceRecords.find(
-        record => record.employeeEmail === currentUser.email && record.date === today
-      )
-      if (todayRecord) {
-        setTodayAttendance({
-          checkIn: todayRecord.checkIn,
-          checkOut: todayRecord.checkOut
-        })
-      } else {
-        setTodayAttendance({ checkIn: null, checkOut: null })
+    if (attendanceRecords.length > 0) {
+      try {
+        localStorage.setItem('hr_attendance', JSON.stringify(attendanceRecords))
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
       }
     }
-  }, [attendanceRecords, currentUser])
-
-  // Save attendance to localStorage
-  useEffect(() => {
-    localStorage.setItem('hr_attendance', JSON.stringify(attendanceRecords))
   }, [attendanceRecords])
 
   const handleCheckIn = () => {
@@ -68,7 +115,7 @@ const EmployeeAttendancePage = () => {
     // Try to find employee in employees array
     let employee = employees.find(e => e.email === currentUser.email)
     let employeeId = employee?.id || Date.now().toString()
-    let employeeName = employee?.name || currentUser.email.split('@')[0] // Use email username as fallback
+    let employeeName = employee?.name || currentUser.email.split('@')[0]
     
     // If employee not found, try to get name from localStorage user data
     if (!employee) {
@@ -88,44 +135,62 @@ const EmployeeAttendancePage = () => {
       }
     }
 
-    // Check if already checked in today
-    const existingRecord = attendanceRecords.find(
-      record => record.employeeEmail === currentUser.email && record.date === dateString
-    )
-
-    if (existingRecord && existingRecord.checkIn) {
-      alert('You have already checked in today!')
-      return
-    }
-
     // Determine if late (after 9:00 AM)
     const checkInHour = now.getHours()
     const checkInMinute = now.getMinutes()
     const isLate = checkInHour > 9 || (checkInHour === 9 && checkInMinute > 0)
     const status = isLate ? 'late' : 'present'
 
-    const newRecord: AttendanceRecord = {
-      id: existingRecord?.id || Date.now().toString(),
-      employeeId: employeeId,
-      employeeEmail: currentUser.email,
-      employeeName: employeeName,
-      date: dateString,
-      checkIn: timeString,
-      checkOut: existingRecord?.checkOut || null,
-      status: status,
-      workingHours: null
-    }
+    // Update attendance records using functional update to ensure we have latest state
+    setAttendanceRecords(prevRecords => {
+      // Check if already checked in today using latest state
+      const existingRecord = prevRecords.find(
+        record => record.employeeEmail === currentUser.email && record.date === dateString
+      )
 
-    if (existingRecord) {
-      setAttendanceRecords(attendanceRecords.map(record => 
-        record.id === existingRecord.id ? newRecord : record
-      ))
-    } else {
-      setAttendanceRecords([...attendanceRecords, newRecord])
-    }
+      if (existingRecord && existingRecord.checkIn) {
+        alert('You have already checked in today!')
+        return prevRecords
+      }
 
-    setTodayAttendance({ checkIn: timeString, checkOut: todayAttendance.checkOut })
-    alert(`Checked in at ${timeString}${isLate ? ' (Late)' : ''}`)
+      const newRecord: AttendanceRecord = {
+        id: existingRecord?.id || `att_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        employeeId: employeeId,
+        employeeEmail: currentUser.email,
+        employeeName: employeeName,
+        date: dateString,
+        checkIn: timeString,
+        checkOut: existingRecord?.checkOut || null,
+        status: status,
+        workingHours: null
+      }
+      
+      const existingIndex = prevRecords.findIndex(
+        record => record.employeeEmail === currentUser.email && record.date === dateString
+      )
+      
+      let updated: AttendanceRecord[]
+      if (existingIndex >= 0) {
+        // Update existing record
+        updated = [...prevRecords]
+        updated[existingIndex] = newRecord
+      } else {
+        // Add new record
+        updated = [...prevRecords, newRecord]
+      }
+      
+      // Save to localStorage immediately
+      try {
+        localStorage.setItem('hr_attendance', JSON.stringify(updated))
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
+      }
+      
+      // Show success message
+      alert(`✅ Checked in at ${timeString}${isLate ? ' (Late)' : ''}`)
+      
+      return updated
+    })
   }
 
   const handleCheckOut = () => {
@@ -138,51 +203,51 @@ const EmployeeAttendancePage = () => {
     const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
     const dateString = now.toISOString().split('T')[0]
 
-    const existingRecord = attendanceRecords.find(
-      record => record.employeeEmail === currentUser.email && record.date === dateString
-    )
+    // Use functional update to get latest state
+    setAttendanceRecords(prevRecords => {
+      const existingRecord = prevRecords.find(
+        record => record.employeeEmail === currentUser.email && record.date === dateString
+      )
 
-    if (!existingRecord || !existingRecord.checkIn) {
-      alert('Please check in first!')
-      return
-    }
+      if (!existingRecord || !existingRecord.checkIn) {
+        alert('Please check in first!')
+        return prevRecords
+      }
 
-    if (existingRecord.checkOut) {
-      alert('You have already checked out today!')
-      return
-    }
+      if (existingRecord.checkOut) {
+        alert('You have already checked out today!')
+        return prevRecords
+      }
 
-    // Calculate working hours - parse the check-in time properly
-    // The checkIn time is in format like "09:30 AM" or "09:30:00 AM"
-    try {
-      const checkInTimeStr = existingRecord.checkIn.trim()
-      const timeMatch = checkInTimeStr.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)/i)
-      
-      if (!timeMatch) {
-        throw new Error('Invalid time format')
+      // Calculate working hours - parse the check-in time properly
+      let diffHours: number | null = null
+      try {
+        const checkInTimeStr = existingRecord.checkIn.trim()
+        const timeMatch = checkInTimeStr.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)/i)
+        
+        if (timeMatch) {
+          let checkInHours = parseInt(timeMatch[1], 10)
+          const checkInMinutes = parseInt(timeMatch[2], 10)
+          const period = timeMatch[3].toUpperCase()
+          
+          // Convert to 24-hour format
+          if (period === 'PM' && checkInHours !== 12) {
+            checkInHours += 12
+          } else if (period === 'AM' && checkInHours === 12) {
+            checkInHours = 0
+          }
+          
+          const checkInTime = new Date(`${dateString}T${String(checkInHours).padStart(2, '0')}:${String(checkInMinutes).padStart(2, '0')}:00`)
+          const checkOutTime = now
+          const diffMs = checkOutTime.getTime() - checkInTime.getTime()
+          
+          if (diffMs >= 0) {
+            diffHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10
+          }
+        }
+      } catch (error) {
+        console.error('Error calculating working hours:', error)
       }
-      
-      let checkInHours = parseInt(timeMatch[1], 10)
-      const checkInMinutes = parseInt(timeMatch[2], 10)
-      const period = timeMatch[3].toUpperCase()
-      
-      // Convert to 24-hour format
-      if (period === 'PM' && checkInHours !== 12) {
-        checkInHours += 12
-      } else if (period === 'AM' && checkInHours === 12) {
-        checkInHours = 0
-      }
-      
-      const checkInTime = new Date(`${dateString}T${String(checkInHours).padStart(2, '0')}:${String(checkInMinutes).padStart(2, '0')}:00`)
-      const checkOutTime = now
-      const diffMs = checkOutTime.getTime() - checkInTime.getTime()
-      
-      if (diffMs < 0) {
-        alert('Error: Check-out time cannot be before check-in time!')
-        return
-      }
-      
-      const diffHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10
 
       const updatedRecord: AttendanceRecord = {
         ...existingRecord,
@@ -190,28 +255,27 @@ const EmployeeAttendancePage = () => {
         workingHours: diffHours
       }
 
-      setAttendanceRecords(attendanceRecords.map(record => 
+      const finalRecords = prevRecords.map(record => 
         record.id === existingRecord.id ? updatedRecord : record
-      ))
-
-      setTodayAttendance({ checkIn: todayAttendance.checkIn, checkOut: timeString })
-      alert(`Checked out at ${timeString}. Working hours: ${diffHours} hours`)
-    } catch (error) {
-      console.error('Error calculating working hours:', error)
-      // Fallback: just update checkout without calculating hours
-      const updatedRecord: AttendanceRecord = {
-        ...existingRecord,
-        checkOut: timeString,
-        workingHours: null
+      )
+      
+      // Save to localStorage immediately
+      try {
+        localStorage.setItem('hr_attendance', JSON.stringify(finalRecords))
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
       }
 
-      setAttendanceRecords(attendanceRecords.map(record => 
-        record.id === existingRecord.id ? updatedRecord : record
-      ))
+      // Show success message
+      if (diffHours !== null) {
+        alert(`✅ Checked out at ${timeString}. Working hours: ${diffHours} hours`)
+      } else {
+        alert(`✅ Checked out at ${timeString}`)
+      }
 
-      setTodayAttendance({ checkIn: todayAttendance.checkIn, checkOut: timeString })
-      alert(`Checked out at ${timeString}`)
-    }
+      // Return updated records
+      return finalRecords
+    })
   }
 
   // Get current user's attendance records for selected month
@@ -263,12 +327,17 @@ const EmployeeAttendancePage = () => {
                 </div>
               </div>
               <button
-                onClick={handleCheckIn}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleCheckIn()
+                }}
                 disabled={!!todayAttendance.checkIn}
+                type="button"
                 className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   todayAttendance.checkIn
                     ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-600/50'
-                    : 'bg-gradient-to-r from-green-600 to-green-500 text-white hover:shadow-lg hover:scale-105'
+                    : 'bg-gradient-to-r from-green-600 to-green-500 text-white hover:shadow-lg hover:scale-105 active:scale-95'
                 }`}
               >
                 {todayAttendance.checkIn ? '✓ Already Checked In' : 'Check In'}
@@ -289,12 +358,17 @@ const EmployeeAttendancePage = () => {
                 </div>
               </div>
               <button
-                onClick={handleCheckOut}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleCheckOut()
+                }}
                 disabled={!todayAttendance.checkIn || !!todayAttendance.checkOut}
+                type="button"
                 className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   !todayAttendance.checkIn || todayAttendance.checkOut
                     ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-600/50'
-                    : 'bg-gradient-to-r from-red-600 to-red-500 text-white hover:shadow-lg hover:scale-105'
+                    : 'bg-gradient-to-r from-red-600 to-red-500 text-white hover:shadow-lg hover:scale-105 active:scale-95'
                 }`}
               >
                 {todayAttendance.checkOut ? '✓ Already Checked Out' : 'Check Out'}
