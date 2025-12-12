@@ -39,7 +39,7 @@ const RegisterEmployee = () => {
 
   // Get unique departments from employees (in case there are departments not in the predefined list)
   const employeeDepartments = Array.from(new Set(employees.map(e => e.department).filter(Boolean)))
-  
+
   // Combine all departments and remove duplicates, then sort alphabetically
   const allDepartments = Array.from(new Set([...allAvailableDepartments, ...employeeDepartments])).sort()
 
@@ -49,7 +49,7 @@ const RegisterEmployee = () => {
       if (employee) {
         setIsEditing(true)
         const nameParts = employee.name.split(' ')
-        
+
         // Format date from YYYY-MM-DD to MM/DD/YYYY
         let formattedDate = ''
         if (employee.joinDate) {
@@ -61,7 +61,7 @@ const RegisterEmployee = () => {
             formattedDate = `${month}/${day}/${year}`
           }
         }
-        
+
         setFormData({
           firstName: nameParts[0] || '',
           lastName: nameParts.slice(1).join(' ') || '',
@@ -89,7 +89,7 @@ const RegisterEmployee = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Convert MM/DD/YYYY to YYYY-MM-DD
     let formattedDate = formData.startDate
     if (formData.startDate.includes('/')) {
@@ -99,7 +99,7 @@ const RegisterEmployee = () => {
         formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
       }
     }
-    
+
     if (isEditing && employeeId) {
       updateEmployee(employeeId, {
         name: `${formData.firstName} ${formData.lastName}`,
@@ -119,7 +119,7 @@ const RegisterEmployee = () => {
         alert('An employee with this email already exists!')
         return
       }
-      
+
       addEmployee({
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -133,7 +133,7 @@ const RegisterEmployee = () => {
       })
       alert('Employee added successfully!')
     }
-    
+
     router.push('/addmin/empolyeepage')
   }
 

@@ -21,21 +21,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/auth/layout.js"
     ],
-    "/empolyee/dishboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/empolyee/dishboard/page.js"
-    ],
-    "/empolyee/attendance/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/empolyee/attendance/page.js"
-    ],
-    "/empolyee/taskpage/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/empolyee/taskpage/page.js"
-    ],
     "/addmin/dishboardpage/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -46,10 +31,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/addmin/empolyeepage/page.js"
     ],
+    "/addmin/taskmanagement/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/taskmanagement/page.js"
+    ],
+    "/addmin/profile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/profile/page.js"
+    ],
+    "/empolyee/dishboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/empolyee/dishboard/page.js"
+    ],
+    "/empolyee/taskpage/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/empolyee/taskpage/page.js"
+    ],
+    "/empolyee/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/empolyee/attendance/page.js"
+    ],
     "/addmin/attendance/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/addmin/attendance/page.js"
+    ],
+    "/addmin/empolyeeregisterpage/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/addmin/empolyeeregisterpage/page.js"
     ],
     "/addmin/departments/page": [
       "static/chunks/webpack.js",
@@ -60,16 +75,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/addmin/departments/[id]/page.js"
-    ],
-    "/addmin/taskmanagement/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/addmin/taskmanagement/page.js"
-    ],
-    "/addmin/empolyeeregisterpage/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/addmin/empolyeeregisterpage/page.js"
     ]
   }
 }
